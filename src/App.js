@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import './App.css';
 
-import CreateEmployee from './pages/CreateEmployeePage';
-import EmployeeList from './pages/EmployeeListPage';
+import CreateEmployeePage from './pages/CreateEmployeePage';
+import EmployeeListPage from './pages/EmployeeListPage';
 import ReportPage from './pages/ReportsPage';
 import AttendancePage from './pages/AttendancePage';
-import ScrollToTop from './components/ScrollToTop'; // Importa el componente
+import Navbar from './components/Navbar';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const [employees, setEmployees] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
 
   const handleAddEmployee = (newEmployee) => {
-    setEmployees((prevEmployees) => {
-      const updatedEmployees = [...prevEmployees, newEmployee];
-      console.log('Empleados después de agregar:', updatedEmployees);
-      return updatedEmployees;
-    });
+    setEmployees((prevEmployees) => [...prevEmployees, newEmployee]);
   };
 
   const handleMarkAttendance = (employeeName, action, timestamp) => {
@@ -24,44 +23,46 @@ function App() {
       ...prevAttendance,
       { employee: employeeName, action, timestamp },
     ]);
-    console.log(`Asistencia marcada: ${employeeName} - ${action} - ${timestamp}`);
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Holding Triple A - Sistema de Registro de Asistencia</h1>
-        <nav>
-          <ul>
-            <li><a href="#create">Crear Empleado</a></li>
-            <li><a href="#list">Lista de Empleados</a></li>
-            <li><a href="#report">Generar Reporte</a></li>
-            <li><a href="#attendance">Marcaje de Asistencia</a></li>
-          </ul>
-        </nav>
-      </header>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <h1>Holding Triple A - Sistema de Registro de Asistencia</h1>
+          <Navbar />
+        </header>
 
-      <main>
-        <section id="create">
-          <CreateEmployee addEmployee={handleAddEmployee} />
-        </section>
+        <main>
+          <Routes>
+            <Route
+              path="/create-employee"
+              element={<CreateEmployeePage addEmployee={handleAddEmployee} />}
+            />
+            <Route
+              path="/employee-list"
+              element={<EmployeeListPage employees={employees} />}
+            />
+            <Route
+              path="/attendance"
+              element={
+                <AttendancePage
+                  employees={employees}
+                  markAttendance={handleMarkAttendance}
+                />
+              }
+            />
+            <Route
+              path="/reports"
+              element={<ReportPage attendanceData={attendanceData} />}
+            />
+            <Route path="/" element={<h2>Bienvenido al Sistema</h2>} />
+          </Routes>
+        </main>
 
-        <section id="list">
-          <EmployeeList employees={employees} />
-        </section>
-
-        <section id="attendance">
-          <AttendancePage employees={employees} markAttendance={handleMarkAttendance} />
-        </section>
-
-        <section id="report">
-          <ReportPage attendanceData={attendanceData} />
-        </section>
-      </main>
-
-      {/* Agregar el componente ScrollToTop aquí */}
-      <ScrollToTop />
-    </div>
+        <ScrollToTop />
+      </div>
+    </Router>
   );
 }
 
