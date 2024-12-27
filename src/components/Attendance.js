@@ -1,49 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const AttendanceForm = ({ employees = [], markAttendance }) => {
+const AttendanceForm = ({ employees, markAttendance }) => {
   const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [action, setAction] = useState('entrada');
+  const [action, setAction] = useState('');
 
-  // Esto asegura que la lista de empleados esté actualizada
-  useEffect(() => {
-    console.log("Lista de empleados actualizada", employees); // Asegúrate de que esté recibiendo correctamente los empleados
-  }, [employees]);
+  const handleSelectEmployee = (event) => {
+    setSelectedEmployee(event.target.value);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedEmployee) {
-      alert('Por favor, selecciona un empleado.');
-      return;
+  const handleActionChange = (event) => {
+    setAction(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (selectedEmployee && action) {
+      const timestamp = new Date().toISOString();
+      markAttendance(selectedEmployee, action, timestamp);
     }
-    const timestamp = new Date().toLocaleString();
-    markAttendance(selectedEmployee, action, timestamp);
-    setSelectedEmployee('');
-    setAction('entrada');
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <label>Empleado:</label>
-      <select
-        value={selectedEmployee}
-        onChange={(e) => setSelectedEmployee(e.target.value)}
-      >
-        <option value="">Selecciona un empleado</option>
-        {employees.map((employee, index) => (
-          <option key={index} value={employee.fullName}>
-            {employee.fullName}
-          </option>
-        ))}
-      </select>
+            
+      <label>
+        Empleado:
+        <select value={selectedEmployee} onChange={handleSelectEmployee}>
+          <option value="">Seleccione un empleado</option>
+          {employees && employees.length > 0 ? (
+            employees.map((employee) => (
+              <option key={employee.run} value={employee.fullName}>
+                {employee.fullName}
+              </option>
+            ))
+          ) : (
+            <option disabled>No hay empleados disponibles</option>
+          )}
+        </select>
+      </label>
 
-      <label>Acción:</label>
-      <select
-        value={action}
-        onChange={(e) => setAction(e.target.value)}
-      >
-        <option value="entrada">Entrada</option>
-        <option value="salida">Salida</option>
-      </select>
+      <label>
+        Acción:
+        <select value={action} onChange={handleActionChange}>
+          <option value="">Seleccione acción</option>
+          <option value="Ingreso">Ingreso</option>
+          <option value="Salida">Salida</option>
+        </select>
+      </label>
 
       <button type="submit">Registrar</button>
     </form>
@@ -51,3 +54,5 @@ const AttendanceForm = ({ employees = [], markAttendance }) => {
 };
 
 export default AttendanceForm;
+
+
